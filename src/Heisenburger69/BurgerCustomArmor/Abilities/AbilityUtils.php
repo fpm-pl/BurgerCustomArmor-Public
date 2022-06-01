@@ -2,27 +2,26 @@
 
 namespace Heisenburger69\BurgerCustomArmor\Abilities;
 
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\AxeNegationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\BowNegationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\DamageNegationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\KnockbackNegationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\SwordNegationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\AxeAmplificationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\BowAmplificationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\DamageAmplificationAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\SwordAmplificationAbility;
+use pocketmine\Server;
+use Heisenburger69\BurgerCustomArmor\Main;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\entity\effect\StringToEffectParser;
 use Heisenburger69\BurgerCustomArmor\Abilities\Togglable\CapeAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Togglable\ScaleAbility;
 use Heisenburger69\BurgerCustomArmor\Abilities\Togglable\EffectAbility;
 use Heisenburger69\BurgerCustomArmor\Abilities\Togglable\PermissionAbility;
-use Heisenburger69\BurgerCustomArmor\Abilities\Togglable\ScaleAbility;
-use Heisenburger69\BurgerCustomArmor\Main;
-use pocketmine\entity\Effect;
-use pocketmine\entity\EffectInstance;
-use pocketmine\Server;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\AxeNegationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\BowNegationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\SwordNegationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\DamageNegationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\AxeAmplificationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\BowAmplificationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive\KnockbackNegationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\SwordAmplificationAbility;
+use Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive\DamageAmplificationAbility;
 
 class AbilityUtils
 {
-
     /**
      * @param string $ability
      * @param mixed $value
@@ -77,7 +76,7 @@ class AbilityUtils
         }
         foreach ($value as $effect) {
             foreach ($effect as $effectName => $level) {
-                $effectInstance = new EffectInstance(Effect::getEffectByName($effectName), 999999, $level - 1, Main::$instance->getConfig()->get("show-effect-particles"));
+                $effectInstance = new EffectInstance(StringToEffectParser::getInstance()->parse($effectName), 999999, $level - 1, Main::$instance->getConfig()->get("show-effect-particles"));
                 $abilities[] = new EffectAbility($effectInstance);
             }
         }

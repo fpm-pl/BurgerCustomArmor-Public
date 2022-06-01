@@ -1,5 +1,6 @@
 [![](https://poggit.pmmp.io/shield.dl.total/BurgerCustomArmor)](https://poggit.pmmp.io/p/BurgerCustomArmor)
 
+**Forked by MagicGames. Updated to PM4 messily. Feel free to use this as reference if you want to properly update it to PM4.**
 
 # BurgerCustomArmor
 Saw that server that gave you cool effects if you wore the entirety of a specific armor set? 

@@ -2,28 +2,29 @@
 
 namespace Heisenburger69\BurgerCustomArmor\ArmorSets;
 
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainChestplate;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainHelmet;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainLeggings;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondChestplate;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondHelmet;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondLeggings;
+use pocketmine\item\Item;
+use pocketmine\block\VanillaBlocks;
+use pocketmine\utils\TextFormat as C;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldChestplate;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldHelmet;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldLeggings;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldHelmet;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldLeggings;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronLeggings;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherBoots;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherCap;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherBoots;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherPants;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherTunic;
-use pocketmine\item\Item;
-use pocketmine\utils\TextFormat as C;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondChestplate;
 
 class ArmorSetUtils
 {
@@ -68,7 +69,7 @@ class ArmorSetUtils
             case CustomArmorSet::TIER_LEATHER:
                 return new LeatherCap();
             default:
-                return Item::get(Item::AIR);
+                return VanillaBlocks::AIR()->asItem();
         }
     }
 
@@ -90,7 +91,7 @@ class ArmorSetUtils
             case CustomArmorSet::TIER_LEATHER:
                 return new LeatherTunic();
             default:
-                return Item::get(Item::AIR);
+                return VanillaBlocks::AIR()->asItem();
         }
     }
 
@@ -112,7 +113,7 @@ class ArmorSetUtils
             case CustomArmorSet::TIER_LEATHER:
                 return new LeatherPants();
             default:
-                return Item::get(Item::AIR);
+                return VanillaBlocks::AIR()->asItem();
         }
     }
 
@@ -134,11 +135,11 @@ class ArmorSetUtils
             case CustomArmorSet::TIER_LEATHER:
                 return new LeatherBoots();
             default:
-                return Item::get(Item::AIR);
+                return VanillaBlocks::AIR()->asItem();
         }
     }
 
-    public static function getHelmetLore(array $lores, array $setBonusLore)
+    public static function getHelmetLore(array $lores, array $setBonusLore): array
     {
         $lore = [];
         $itemLore = [];
@@ -154,7 +155,7 @@ class ArmorSetUtils
         return $lore;
     }
 
-    public static function getChestplateLore(array $lores, array $setBonusLore)
+    public static function getChestplateLore(array $lores, array $setBonusLore): array
     {
         $lore = [];
         $itemLore = [];
@@ -170,7 +171,7 @@ class ArmorSetUtils
         return $lore;
     }
 
-    public static function getLeggingsLore(array $lores, array $setBonusLore)
+    public static function getLeggingsLore(array $lores, array $setBonusLore): array
     {
         $lore = [];
         $itemLore = [];
@@ -186,7 +187,7 @@ class ArmorSetUtils
         return $lore;
     }
 
-    public static function getBootsLore(array $lores, array $setBonusLore)
+    public static function getBootsLore(array $lores, array $setBonusLore): array
     {
         $lore = [];
         $itemLore = [];

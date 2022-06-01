@@ -2,54 +2,57 @@
 
 namespace Heisenburger69\BurgerCustomArmor\Utils;
 
+use GdImage;
+use pocketmine\item\Item;
+use pocketmine\entity\Skin;
+use pocketmine\world\World;
+use pocketmine\player\Player;
 use Heisenburger69\BurgerCustomArmor\Main;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainChestplate;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainHelmet;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainLeggings;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondChestplate;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondHelmet;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondLeggings;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldChestplate;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldHelmet;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldLeggings;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronBoots;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldHelmet;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldLeggings;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronLeggings;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherBoots;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherCap;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherBoots;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherPants;
 use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherTunic;
-use pocketmine\entity\Skin;
-use pocketmine\item\Item;
-use pocketmine\level\Level;
-use pocketmine\Player;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondChestplate;
 
 class Utils
 {
     /**
-     * @param Level $level
+     * @param World $level
      * @return bool
      */
-    public static function checkProtectionLevel(Level $level): bool
+    public static function checkProtectionLevel(World $level): bool
     {
         $blacklist = Main::$instance->getConfig()->get("enable-world-blacklist");
         $whitelist = Main::$instance->getConfig()->get("enable-world-whitelist");
-        $levelName = $level->getName();
+        $levelName = $level->getFolderName();
 
         if ($blacklist === $whitelist) return true;
 
         if ($blacklist) {
             $disallowedWorlds = Main::$instance->getConfig()->get("blacklisted-worlds");
+            if (!is_array($disallowedWorlds)) return false;
             if (in_array($levelName, $disallowedWorlds)) return false;
             return true;
         }
 
         if ($whitelist) {
             $allowedWorlds = Main::$instance->getConfig()->get("whitelisted-worlds");
+            if (!is_array($allowedWorlds)) return false;
             if (in_array($levelName, $allowedWorlds)) return true;
             return false;
         }
@@ -65,12 +68,21 @@ class Utils
     public static function createCape(string $fileName)
     {
         $img = @imagecreatefrompng(Main::$instance->getDataFolder() . $fileName);
+        if (!$img instanceof GdImage) {
+            return '';
+        }
+
         $bytes = '';
-        $l = (int)@getimagesize(Main::$instance->getDataFolder() . $fileName)[1];
+        $lc = @getimagesize(Main::$instance->getDataFolder() . $fileName);
+        if (!is_array($lc)) {
+            return '';
+        }
+
+        $l = (int)$lc[1];
         for ($y = 0; $y < $l; $y++) {
             for ($x = 0; $x < 64; $x++) {
                 $rgba = @imagecolorat($img, $x, $y);
-                $a = ((~((int)($rgba >> 24))) << 1) & 0xff;
+                $a = ((~($rgba >> 24)) << 1) & 0xff;
                 $r = ($rgba >> 16) & 0xff;
                 $g = ($rgba >> 8) & 0xff;
                 $b = $rgba & 0xff;
@@ -85,7 +97,7 @@ class Utils
      * @param Player $player
      * @param string $fileName
      */
-    public static function addCape(Player $player, string $fileName)
+    public static function addCape(Player $player, string $fileName): void
     {
         $oldSkin = $player->getSkin();
         $capeData = self::createCape($fileName);
@@ -97,7 +109,7 @@ class Utils
     /**
      * @param Player $player
      */
-    public static function removeCape(Player $player)
+    public static function removeCape(Player $player): void
     {
         $oldSkin = $player->getSkin();
         $capeData = "";
@@ -113,7 +125,8 @@ class Utils
             $item instanceof GoldHelmet ||
             $item instanceof IronHelmet ||
             $item instanceof ChainHelmet ||
-            $item instanceof LeatherCap) {
+            $item instanceof LeatherCap
+        ) {
             return true;
         }
         return false;
@@ -126,7 +139,8 @@ class Utils
             $item instanceof IronChestplate ||
             $item instanceof GoldChestplate ||
             $item instanceof ChainChestplate ||
-            $item instanceof LeatherTunic) {
+            $item instanceof LeatherTunic
+        ) {
             return true;
         }
         return false;
@@ -134,11 +148,13 @@ class Utils
 
     public static function isLeggings(Item $item): bool
     {
-        if ($item instanceof DiamondLeggings ||
+        if (
+            $item instanceof DiamondLeggings ||
             $item instanceof GoldLeggings ||
             $item instanceof IronLeggings ||
             $item instanceof ChainLeggings ||
-            $item instanceof LeatherPants) {
+            $item instanceof LeatherPants
+        ) {
             return true;
         }
         return false;
@@ -146,11 +162,13 @@ class Utils
 
     public static function isBoots(Item $item): bool
     {
-        if ($item instanceof DiamondBoots ||
+        if (
+            $item instanceof DiamondBoots ||
             $item instanceof GoldBoots ||
             $item instanceof IronBoots ||
             $item instanceof ChainBoots ||
-            $item instanceof LeatherBoots) {
+            $item instanceof LeatherBoots
+        ) {
             return true;
         }
         return false;

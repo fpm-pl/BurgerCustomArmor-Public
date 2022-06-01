@@ -2,11 +2,11 @@
 
 namespace Heisenburger69\BurgerCustomArmor\Events;
 
-use Heisenburger69\BurgerCustomArmor\ArmorSets\CustomArmorSet;
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\event\Event;
-use pocketmine\Player;
 use pocketmine\Server;
+use pocketmine\event\Event;
+use pocketmine\player\Player;
+use pocketmine\console\ConsoleCommandSender;
+use Heisenburger69\BurgerCustomArmor\ArmorSets\CustomArmorSet;
 
 class CustomSetUnequippedEvent extends Event
 {
@@ -39,7 +39,7 @@ class CustomSetUnequippedEvent extends Event
     {
         foreach ($this->armorSet->getUnequippedCommands() as $command) {
             $command = str_replace("{PLAYER}", $this->player->getName(), $command);
-            Server::getInstance()->getCommandMap()->dispatch(new ConsoleCommandSender(), $command);
+            Server::getInstance()->getCommandMap()->dispatch(new ConsoleCommandSender(Server::getInstance(), Server::getInstance()->getLanguage()), $command);
         }
         foreach ($this->armorSet->getUnequippedMessages() as $msg) {
             $msg = str_replace("{PLAYER}", $this->player->getName(), $msg);

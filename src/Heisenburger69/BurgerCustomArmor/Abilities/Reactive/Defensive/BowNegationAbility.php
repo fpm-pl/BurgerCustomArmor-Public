@@ -3,7 +3,7 @@
 namespace Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Defensive;
 
 use pocketmine\item\Bow;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class BowNegationAbility extends DamageNegationAbility
 {

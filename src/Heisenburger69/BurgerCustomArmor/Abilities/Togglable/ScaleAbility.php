@@ -2,26 +2,23 @@
 
 namespace Heisenburger69\BurgerCustomArmor\Abilities\Togglable;
 
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class ScaleAbility extends TogglableAbility
 {
-    /**
-     * @var float
-     */
-    private $scale;
+    private float $scale;
 
     public function __construct(float $scale)
     {
         $this->scale = $scale;
     }
 
-    public function on(Player $player)
+    public function on(Player $player): void
     {
         $player->setScale($this->scale);
     }
 
-    public function off(Player $player)
+    public function off(Player $player): void
     {
         $player->setScale(1);
     }

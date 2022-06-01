@@ -2,30 +2,25 @@
 
 namespace Heisenburger69\BurgerCustomArmor\Abilities\Togglable;
 
-use pocketmine\entity\EffectInstance;
-use pocketmine\Player;
+use pocketmine\player\Player;
+use pocketmine\entity\effect\EffectInstance;
 
 class EffectAbility extends TogglableAbility
 {
-    /**
-     * @var EffectInstance
-     */
-    private $effect;
+    private EffectInstance $effect;
 
     public function __construct(EffectInstance $effectInstance)
     {
         $this->effect = $effectInstance;
     }
 
-    public function on(Player $player)
+    public function on(Player $player): void
     {
-        $player->addEffect($this->effect);
+        $player->getEffects()->add($this->effect);
     }
 
-    public function off(Player $player)
+    public function off(Player $player): void
     {
-        if ($player->hasEffect($this->effect->getId())) {
-            $player->removeEffect($this->effect->getId());
-        }
+        $player->getEffects()->remove($this->effect->getType());
     }
 }

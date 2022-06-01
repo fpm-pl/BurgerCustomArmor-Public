@@ -3,7 +3,7 @@
 namespace Heisenburger69\BurgerCustomArmor\Abilities\Reactive\Offensive;
 
 use pocketmine\item\Axe;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class AxeAmplificationAbility extends DamageAmplificationAbility
 {

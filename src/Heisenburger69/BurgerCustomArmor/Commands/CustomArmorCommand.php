@@ -2,13 +2,12 @@
 
 namespace Heisenburger69\BurgerCustomArmor\Commands;
 
-use Heisenburger69\BurgerCustomArmor\ArmorSets\CustomArmorSet;
-use Heisenburger69\BurgerCustomArmor\Main;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 use pocketmine\utils\TextFormat as C;
+use Heisenburger69\BurgerCustomArmor\Main;
 
-class CustomArmorCommand extends PluginCommand
+class CustomArmorCommand extends Command
 {
     /**
      * @var Main
@@ -17,10 +16,7 @@ class CustomArmorCommand extends PluginCommand
 
     public function __construct(Main $plugin)
     {
-        parent::__construct("customarmor", $plugin);
-        $this->setUsage("/customarmor <SetName> <piece> <player>");
-        $this->setAliases(["burgercustomarmor", "bca"]);
-        $this->setDescription("BurgerCustomArmor Base Command");
+        parent::__construct("customarmor", "BurgerCustomArmor Base Command", "/customarmor <SetName> <piece> <player>", ["burgercustomarmor", "bca"]);
         $this->setPermission("burgercustomarmor.command");
         $this->plugin = $plugin;
     }
@@ -37,8 +33,11 @@ class CustomArmorCommand extends PluginCommand
             $sender->sendMessage(Main::PREFIX . C::DARK_RED . "Insufficient Permission.");
             return;
         }
+
+        /** @var string $usage */
+        $usage = $this->getUsage();
         if (count($args) !== 3) {
-            $sender->sendMessage(Main::PREFIX . C::RED . $this->getUsage());
+            $sender->sendMessage(Main::PREFIX . C::RED . $usage);
             return;
         }
         if (!isset($this->plugin->customSets[$args[0]])) {
@@ -46,12 +45,8 @@ class CustomArmorCommand extends PluginCommand
             return;
         }
         $armorSet = $this->plugin->customSets[$args[0]];
-        if (!$armorSet instanceof CustomArmorSet) {
-            $sender->sendMessage(Main::PREFIX . C::RED . "The given Armor Set does not exist.");
-            return;
-        }
         $playerName = $args[2];
-        if (($player = $this->plugin->getServer()->getPlayerExact($playerName)) === null) {
+        if (($player = $this->plugin->getServer()->getPlayerByPrefix($playerName)) === null) {
             $sender->sendMessage(Main::PREFIX . C::RED . "The given player is offline!");
             return;
         }

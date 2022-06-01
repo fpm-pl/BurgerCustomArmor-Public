@@ -4,83 +4,68 @@ declare(strict_types=1);
 
 namespace Heisenburger69\BurgerCustomArmor;
 
-use Heisenburger69\BurgerCustomArmor\Abilities\AbilityUtils;
-use Heisenburger69\BurgerCustomArmor\ArmorSets\ArmorSetUtils;
-use Heisenburger69\BurgerCustomArmor\ArmorSets\CustomArmorSet;
-use Heisenburger69\BurgerCustomArmor\Commands\CustomArmorCommand;
-use pocketmine\inventory\ShapedRecipe;
-use pocketmine\item\Item;
+use pocketmine\color\Color;
+use pocketmine\utils\Config;
 use pocketmine\item\ItemFactory;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\Color;
-use pocketmine\utils\Config;
+use pocketmine\crafting\ShapedRecipe;
 use pocketmine\utils\TextFormat as C;
-use Heisenburger69\BurgerCustomArmor\Pocketmine\{
-    Chain\ChainBoots,
-    Chain\ChainChestplate,
-    Chain\ChainHelmet,
-    Chain\ChainLeggings,
-    Diamond\DiamondBoots,
-    Diamond\DiamondChestplate,
-    Diamond\DiamondHelmet,
-    Diamond\DiamondLeggings,
-    Gold\GoldBoots,
-    Gold\GoldChestplate,
-    Gold\GoldHelmet,
-    Gold\GoldLeggings,
-    Iron\IronBoots,
-    Iron\IronChestplate,
-    Iron\IronHelmet,
-    Iron\IronLeggings,
-    Leather\LeatherBoots,
-    Leather\LeatherCap,
-    Leather\LeatherPants,
-    Leather\LeatherTunic
-};
+use pocketmine\item\enchantment\ItemFlags;
+use pocketmine\item\enchantment\Enchantment;
+use pocketmine\data\bedrock\EnchantmentIdMap;
+use pocketmine\item\LegacyStringToItemParser;
+use Heisenburger69\BurgerCustomArmor\Abilities\AbilityUtils;
+use Heisenburger69\BurgerCustomArmor\ArmorSets\ArmorSetUtils;
+use Heisenburger69\BurgerCustomArmor\ArmorSets\CustomArmorSet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronHelmet;
+use Heisenburger69\BurgerCustomArmor\Commands\CustomArmorCommand;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherCap;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Gold\GoldChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Iron\IronChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherBoots;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherPants;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Leather\LeatherTunic;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Chain\ChainChestplate;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondHelmet;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondLeggings;
+use Heisenburger69\BurgerCustomArmor\Pocketmine\Diamond\DiamondChestplate;
 
 class Main extends PluginBase
 {
-    /** @var string */
     public const PREFIX = C::BOLD . C::AQUA . "Burger" . C::LIGHT_PURPLE . "CustomArmor" . "> " . C::RESET;
 
-    /**
-     * @var Main
-     */
-    public static $instance;
-    /**
-     * @var Config
-     */
-    private $armorSets;
-    /**
-     * @var Config
-     */
-    private $cfg;
-    /**
-     * @var CustomArmorSet[]
-     */
-    public $customSets;
+    public static Main $instance;
 
-    /**
-     * @var array
-     */
-    public $using;
-    /**
-     * @var Config
-     */
-    private $craftingRecipes;
+    private Config $craftingRecipes;
+    private Config $armorSets;
 
-    public function onEnable()
+    public array $customSets;
+    public array $using;
+
+    public const FAKE_ENCH_ID = -1;
+
+    public function onEnable(): void
     {
         self::$instance = $this;
 
         $this->saveDefaultConfig();
-        $this->cfg = $this->getConfig();
         $this->saveResource("armorsets.yml");
         $this->saveResource("recipes.yml");
         $this->saveResource("FireCape.png");
         $this->armorSets = new Config($this->getDataFolder() . "armorsets.yml");
         $this->craftingRecipes = new Config($this->getDataFolder() . "recipes.yml");
+
+        EnchantmentIdMap::getInstance()->register(self::FAKE_ENCH_ID, new Enchantment("Glow", 1, ItemFlags::ALL, ItemFlags::NONE, 1));
 
         $this->registerCustomItems();
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
@@ -91,6 +76,10 @@ class Main extends PluginBase
 
     public function registerArmorSets(): void
     {
+        /** 
+         * @var string $name
+         * @var array $properties
+         * */
         foreach ($this->armorSets->getAll() as $name => $properties) {
             $this->registerArmorSet($name, $properties);
         }
@@ -103,6 +92,9 @@ class Main extends PluginBase
     public function registerArmorSet(string $name, array $properties): void
     {
         $tier = ArmorSetUtils::getTierFromName($properties["tier"]);
+        if (!is_int($tier)) {
+            return;
+        }
 
         $color = new Color(0, 0, 0);
         if (isset($properties["color"])) {
@@ -171,7 +163,7 @@ class Main extends PluginBase
             new DiamondBoots(),
         ];
         foreach ($items as $item) {
-            ItemFactory::registerItem($item, true);
+            ItemFactory::getInstance()->register($item, true);
         }
     }
 
@@ -182,21 +174,26 @@ class Main extends PluginBase
     private function registerRecipes(): void
     {
         foreach ($this->craftingRecipes->getAll() as $name => $recipeData) {
-            $customArmor = explode("-", $name);
+            $customArmor = explode("-", (string)$name);
             $setName = $customArmor[0];
             $setPiece = $customArmor[1];
 
-            $item = ItemFactory::fromString($setPiece);
-            $item->setNamedTagEntry(new StringTag("burgercustomarmor", $setName));
-            $item->setCustomName(C::RESET . C::BOLD . $setName . C::RESET . " " .$item->getName());
+            $item = LegacyStringToItemParser::getInstance()->parse($setPiece);
+            $item->getNamedTag()->setTag("burgercustomarmor", new StringTag($setName));
+            $item->setCustomName(C::RESET . C::BOLD . $setName . C::RESET . " " . $item->getName());
 
             $requiredItems = [];
+            /** 
+             * @var string $materialSymbol 
+             * @var array $materialData
+             */
             foreach ($recipeData["materials"] as $materialSymbol => $materialData) {
-                $requiredItems[$materialSymbol] = Item::get($materialData["id"], $materialData["meta"], $materialData["count"]);
+                $requiredItems[$materialSymbol] = ItemFactory::getInstance()->get((int)$materialData["id"], (int)$materialData["meta"], (int)$materialData["count"]);
             }
-            $this->getServer()->getCraftingManager()->registerRecipe(new ShapedRecipe($recipeData["shape"], $requiredItems, [$item]));
+            if (is_array($recipeData["shape"])) {
+                $this->getServer()->getCraftingManager()->registerShapedRecipe(new ShapedRecipe($recipeData["shape"], $requiredItems, [$item]));
+            }
         }
-        $this->getServer()->getCraftingManager()->buildCraftingDataCache();
+        //$this->getServer()->getCraftingManager()->buildCraftingDataCache();
     }
-
 }
