@@ -33,6 +33,7 @@ class EquipmentUtils
         } elseif (Utils::isBoots($item)) {
             Main::$instance->using[$setName][$playerName]["boots"] = false;
         }
+        unset(Main::$instance->using[$setName][$playerName]);
     }
 
     /**
